@@ -1,47 +1,31 @@
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
-import time
-
-# Dictionary to store when to add each member
-member_add_times = {}
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
 # Define the command to start the process
-def add_members(update: Update, context: CallbackContext):
-    usernames = context.args[0].split(',')
-    
-    for username in usernames:
-        # Add username and current time + 60 seconds to the dictionary
-        member_add_times[username] = time.time() + 60  # Changed delay time to 60 seconds
+def add_member(update: Update, context: CallbackContext):
+    # Check if the command includes a username or user ID
+    if context.args:
+        user_info = context.args[0]
         
-    update.message.reply_text("Usernames added. Members will be added after 60 seconds.")
-
-# Function to check and add members at the designated times
-def check_members(context: CallbackContext):
-    current_time = time.time()
-    
-    for username, add_time in member_add_times.items():
-        if current_time >= add_time:
-            # Placeholder logic to add member to a group using Telegram API
-            # You should implement the actual logic here
-            
-            # After adding the member, you can remove them from the dictionary
-            del member_add_times[username]
-            print(f"Added member: {username}")
+        # Add member to the group
+        try:
+            context.bot.add_chat_members(chat_id=update.message.chat_id, user_ids=[user_info])
+            update.message.reply_text(f"Member {user_info} added successfully!")
+        except Exception as e:
+            update.message.reply_text(f"Failed to add member {user_info}: {e}")
+    else:
+        update.message.reply_text("Please provide the username or user ID of the member you want to add.")
 
 def main():
     # Set up the bot
     updater = Updater("6811749953:AAGdD19D6gJBAhyIATWKIai4S23so3BHXBc", use_context=True)
     dp = updater.dispatcher
 
-    # Command to trigger adding the members
-    dp.add_handler(CommandHandler("addmembers", add_members))
+    # Command to trigger adding a member
+    dp.add_handler(CommandHandler("addmember", add_member))
 
     # Start the bot
     updater.start_polling()
-    
-    # Set up a job to check and add members periodically
-    updater.job_queue.run_repeating(check_members, interval=1, first=0)
-
     updater.idle()
 
 if __name__ == '__main__':
