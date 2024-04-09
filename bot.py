@@ -11,8 +11,7 @@ def add_member(update: Update, context: CallbackContext):
         try:
             chat_id = update.message.chat_id
             admins = context.bot.get_chat_administrators(chat_id)
-            creator = context.bot.get_chat(chat_id).get('pinned_message').author
-            if update.message.from_user.id in [admin.user.id for admin in admins] or update.message.from_user.id == creator.id:
+            if update.message.from_user.id in [admin.user.id for admin in admins]:
                 users_count = context.bot.get_chat_members_count(chat_id)
                 if users_count + len(context.args) > 100:
                     update.message.reply_text(f"Failed to add member {user_info}: The group limit of 100 members exceeded.")
