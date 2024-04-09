@@ -16,8 +16,8 @@ def add_member(update: Update, context: CallbackContext):
                 if users_count + len(context.args) > 100:
                     update.message.reply_text(f"Failed to add member {user_info}: The group limit of 100 members exceeded.")
                     return
-                context.bot.add_chat_members(chat_id=chat_id, user_ids=[user_info])
-                update.message.reply_text(f"Member {user_info} added successfully!")
+                context.bot.send_message(chat_id, f"/invite {user_info}")  # Send invitation message to the user
+                update.message.reply_text(f"Invitation sent to {user_info}!")
             else:
                 update.message.reply_text("You don't have permission to add members to this group.")
         except Exception as e:
